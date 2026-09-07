@@ -181,8 +181,8 @@
         </button>
         <label class="tempo">
           <span class="tempo-label">Tempo</span>
-          <input id="speed" type="range" min="50" max="220" step="5" value="100" aria-label="Abspieltempo">
-          <output id="speedOut">1,0×</output>
+          <input id="speed" type="range" min="50" max="220" step="5" value="50" aria-label="Abspieltempo">
+          <output id="speedOut">0,5×</output>
         </label>
       </div>
       <div class="plot">
@@ -288,7 +288,7 @@
   let state = {x1:3, x2:4, x3:2};
   let animId = null, debId = null, loopId = null;
   let hudNums = {}, hudBaseY = 0;
-  let speed = 1;                 // Tempo-Faktor (Slider)
+  let speed = 0.5;               // Tempo-Faktor (Slider), Standard 0,5×
   const LOOP_PAUSE = 5000;       // Endansicht 5 s halten, dann erneut
 
   const speedEl = document.getElementById('speed');
@@ -407,18 +407,21 @@
       fill:'var(--paper)','fill-opacity':0.88, stroke:'var(--line)','stroke-width':1}));
     let cx = hx;
     for(const p of parts){
+      const cellW = p.s.length * cw;
+      const mid = cx + cellW / 2;
       let box = null;
       if(p.key){
-        box = mk('rect',{x:cx-4, y:hy-F+3, width:p.s.length*cw+8, height:F, rx:4,
+        const bw = cw + 10;
+        box = mk('rect',{x:mid - bw/2, y:hy - F*0.8, width:bw, height:F*0.92, rx:4,
           fill:p.col,'fill-opacity':0, stroke:p.col,'stroke-opacity':0,'stroke-width':1.5});
         hud.appendChild(box);
       }
-      const t = mk('text',{x:cx, y:hy,'font-size':F,'font-weight':p.key?600:500,
-        'font-family':'"IBM Plex Mono",monospace', fill:p.col});
+      const t = mk('text',{x:p.key?mid:cx, y:hy,'font-size':F,'font-weight':p.key?600:500,
+        'font-family':'"IBM Plex Mono",monospace', fill:p.col,'text-anchor':p.key?'middle':'start'});
       t.textContent = p.s;
       hud.appendChild(t);
-      if(p.key) hudNums[p.key] = {el:t, box:box, x:cx};
-      cx += p.s.length * cw;
+      if(p.key) hudNums[p.key] = {el:t, box:box, x:mid};
+      cx += cellW;
     }
 
     play();
